@@ -1,46 +1,56 @@
 const inputBox = document.getElementById("input-box");
-        const listContainer = document.getElementById("list-container");
+const listContainer = document.getElementById("list-container");
 
-        function addTask() {
-            if (inputBox.value === "") {
-                alert("You must write something!");
-            } else {
-                let li = document.createElement("li");
-                li.innerHTML = inputBox.value;
-                listContainer.appendChild(li);
+function addTask() {
+    const inputValue = inputBox.value.trim(); // Remove leading/trailing whitespace
 
-                let span = document.createElement("span");
-                span.innerHTML = "&#10006;"; // Close symbol (X)
-                span.className = "close";
-                span.addEventListener("click", function () {
-                    li.remove();
-                    saveData();
-                });
-                li.appendChild(span);
-                saveData();
-            }
-            inputBox.value = "";
-        }
+    if (inputValue === "") {
+        alert("You must write something!");
+        return; // Exit the function if the input is empty
+    }
 
-        listContainer.addEventListener("click", function (e) {
-            if (e.target.tagName === "LI") {
-                e.target.classList.toggle("checked");
-                saveData();
-            } else if (e.target.tagName === "SPAN") {
-                e.target.parentElement.remove();
-                saveData();
-            }
-        }, false);
+    const li = createListItem(inputValue);
+    listContainer.appendChild(li);
 
-        function saveData() {
-            localStorage.setItem("data", listContainer.innerHTML);
-        }
+    inputBox.value = "";
+    saveData();
+}
 
-        function showTasks() { 
-            const savedData = localStorage.getItem("data");
-            if (savedData) {
-                listContainer.innerHTML = savedData;
-            }
-        }
+function createListItem(text) {
+    const li = document.createElement("li");
+    li.textContent = text;
 
-        showTasks();
+    const span = document.createElement("span");
+    span.innerHTML = "&#10006;";
+    span.className = "close";
+    span.addEventListener("click", function () {
+        li.remove();
+        saveData();
+    });
+
+    li.appendChild(span);
+    return li;
+}
+
+listContainer.addEventListener("click", function (e) {
+    if (e.target.tagName === "LI") {
+        e.target.classList.toggle("checked");
+        saveData();
+    } else if (e.target.tagName === "SPAN") {
+        e.target.parentElement.remove();
+        saveData();
+    }
+}, false);
+
+function saveData() {
+    localStorage.setItem("data", listContainer.innerHTML);
+}
+
+function showTasks() {
+    const savedData = localStorage.getItem("data");
+    if (savedData) {
+        listContainer.innerHTML = DOMPurify.sanitize(savedData);
+    }
+}
+
+showTasks();
